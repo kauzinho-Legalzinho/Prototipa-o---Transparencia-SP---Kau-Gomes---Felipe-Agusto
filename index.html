@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transparência SP</title>
+  <style>
+    :root {
+      --primary: #0072ce;
+      --primary-dark: #004b87;
+      --secondary: #00a859;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --info: #17a2b8;
+      --bg: #f4f7f6;
+      --card-bg: #ffffff;
+      --border: #e0e0e0;
+      --text: #333333;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .brand h1 { font-size: 1.5rem; letter-spacing: 0.5px; }
+    .brand span { color: #ffeb3b; }
+
+    .nav-container { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+    }
+
+    .nav-btn:hover { background: white; color: var(--primary); }
+    .nav-btn.active { background: white; color: var(--primary); font-weight: bold; }
+
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+
+    .card {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+      border-left: 5px solid var(--primary);
+      border-top: 1px solid #f0f0f0;
+      border-right: 1px solid #f0f0f0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .search-box { display: flex; gap: 10px; margin-top: 12px; }
+    input, select, textarea {
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+      font-size: 0.95rem;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(0,114,206,0.2);
+    }
+
+    button.action-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    button.action-btn:hover { background: var(--primary-dark); }
+    button.action-btn.secondary { background: #6c757d; }
+    button.action-btn.secondary:hover { background: #5a6268; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 15px;
+      color: white;
+      font-weight: bold;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .status-pendente { background: var(--warning); color: #000; }
+    .status-andamento { background: var(--primary); }
+    .status-concluido { background: var(--secondary); }
+    .status-cancelado { background: var(--danger); }
+
+    .prio-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-left: 5px;
+    }
+    .prio-alta { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+    .prio-media { background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
+    .prio-baixa { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+
+    .map-simulation {
+      background: #e9ecef;
+      height: 220px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border: 2px dashed #b0b0b0;
+      margin-top: 15px;
+      overflow: hidden;
+    }
+
+    .tech-card {
+      position: absolute;
+      bottom: 12px;
+      background: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      text-align: center;
+      border-left: 4px solid var(--primary);
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+
+    .os-list-item {
+      background: #f8f9fa;
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .os-list-item:hover {
+      border-color: var(--primary);
+      background: #eef6fc;
+    }
+    .os-list-item.selected {
+      border-left: 4px solid var(--primary);
+      background: #eef6fc;
+    }
+
+    .notes-box {
+      background: #fdfbf7;
+      border: 1px solid #e2d9cc;
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .notes-box h5 { color: #856404; margin-bottom: 5px; font-size: 0.9rem; }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .close-btn { cursor: pointer; font-size: 1.5rem; font-weight: bold; color: #888; }
+
+    @media (max-width: 850px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <h1>TRANSPARÊNCIA <span>SP</span></h1>
+    </div>
+    <div class="nav-container">
+      <button class="nav-btn active" id="btn-cidadao" onclick="switchView('cidadao')">Visão Cidadão</button>
+      <button class="nav-btn" id="btn-tecnico-login" onclick="switchView('tecnico-login')">Área do Técnico (Login)</button>
+      <button class="nav-btn" id="btn-tecnico" onclick="switchView('tecnico')">Área do Técnico (Painel)</button>
+      <button class="nav-btn" id="btn-gestor" onclick="switchView('gestor')">Área do Gestor</button>
+    </div>
+  </header>
+
+  <!-- VISÃO CIDADÃO -->
+  <div id="cidadao-view" class="view-panel active">
+    <div class="card">
+      <h2>Consultar Ocorrência / Protocolo</h2>
+      <p style="font-size: 0.9em; color: #666;">Acompanhe o status do seu chamado em tempo real.</p>
+      <div class="search-box">
+        <input type="text" id="protocol-input" placeholder="Digite o protocolo (ex: 2026-987)" value="2026-987">
+        <button class="action-btn" onclick="buscarProtocolo()">Consultar</button>
+      </div>
+    </div>
+
+    <div id="result-card" class="card" style="display: block;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <h3>Protocolo Nº <span id="c-proto">2026-987</span></h3>
+        <div>
+          <span>Status: </span>
+          <span id="c-status-display" class="status-badge status-andamento">Em Andamento</span>
+        </div>
+      </div>
+      <hr style="margin: 15px 0; border: none; border-top: 1px solid #eee;">
+      
+      <p><strong>Nº do Fornecimento / Hidrômetro:</strong> <span id="c-fornec">098412-X</span></p>
+      <p><strong>Solicitante:</strong> <span id="c-nome">Ana Maria Silva</span></p>
+      <p><strong>Endereço / CEP:</strong> <span id="c-end">Rua das Flores, 123 - Pinheiros (CEP: 05400-000)</span></p>
+      <p><strong>Tipo de Serviço:</strong> <span id="c-servico">Vazamento na Calçada / Baixa Pressão</span></p>
+
+      <div class="notes-box">
+        <h5>Notas Técnicas da Unidade / Parecer:</h5>
+        <p id="c-notas-tecnicas">Equipe técnica alocada. Vistoria inicial iniciada. Encanador a caminho para reparo na rede secundária.</p>
+      </div>
+
+      <div class="map-simulation">
+        <p style="color: #555; font-weight: 500;">📍 Mapa da Região (Monitoramento de Ocorrência)</p>
+        <div class="tech-card">
+          <strong style="color: var(--primary);">🚨 SEU TÉCNICO ESTÁ A CAMINHO!!</strong><br>
+          <small>Técnico: <span id="c-tech-name">Carlos Eduardo</span> | Veículo: Sabesp Utility (ABC-1234)</small><br>
+          <small style="color: #666;">Previsão estimada: 15 min (Placa: GAB-901)</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN TÉCNICO -->
+  <div id="tecnico-login-view" class="view-panel">
+    <div style="max-width: 420px; margin: 40px auto;">
+      <div class="card" style="border-left-color: var(--primary); text-align: center;">
+        <h2 style="color: var(--primary); margin-bottom: 5px;">ÁREA DO TÉCNICO</h2>
+        <p style="font-size: 0.9em; color: #666; margin-bottom: 20px;">Acesso ao Portal</p>
+        
+        <div style="text-align: left; margin-bottom: 15px;">
+          <label><strong>USUÁRIO...</strong></label>
+          <input type="text" id="tech-user" placeholder="Insira seu RE ou Usuário" value="tec_carlos">
+        </div>
+
+        <div style="text-align: left; margin-bottom: 20px;">
+          <label><strong>SENHA...</strong></label>
+          <input type="password" id="tech-pass" placeholder="••••••••" value="123456">
+        </div>
+
+        <button class="action-btn" style="width: 100%; padding: 12px;" onclick="fazerLoginTecnico()">Consultar / Entrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAINEL DO TÉCNICO -->
+  <div id="tecnico-view" class="view-panel">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Área Operacional do Técnico</h2>
+        <span style="font-size: 0.9em; background: #eef6fc; color: var(--primary); padding: 5px 12px; border-radius: 12px; font-weight: bold;">Técnico: Carlos Eduardo (ID #409)</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>PEDIDOS / Ordens de Serviço</h3>
+        
+        <div class="os-list-item selected">
+          <div style="display: flex; justify-content: space-between;">
+            <strong>Processo Nº 1 (2026-987)</strong>
+            <span class="prio-badge prio-alta">Alta</span>
+          </div>
+          <p><small>Endereço: Rua das Flores, 123 - Pinheiros</small></p>
+          <p><small>Solicitante: Ana Maria Silva</small></p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Detalhamento & Atualização de Campo</h3>
+        
+        <p><strong>Fornecimento:</strong> <span id="t-fornec">098412-X</span></p>
+        <p><strong>Endereço:</strong> <span id="t-end">Rua das Flores, 123 - Pinheiros</span></p>
+        <p><strong>Nome Solicitante:</strong> <span id="t-nome">Ana Maria Silva</span></p>
+
+        <hr style="margin: 12px 0; border: none; border-top: 1px solid #eee;">
+
+        <div style="margin-bottom: 12px;">
+          <label><strong>Status da Ordem (Técnico):</strong></label>
+          <select id="t-status-select">
+            <option value="Pendente">Pendente</option>
+            <option value="Em Andamento">Em Andamento (Equipe a caminho)</option>
+            <option value="Concluido">Concluído</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label><strong>Notas do Técnico (Parecer / Execução):</strong></label>
+          <textarea id="t-notas-input" rows="3"></textarea>
+        </div>
+
+        <div class="notes-box" style="margin-bottom: 15px;">
+          <h5>Notas do Gestor (Orientações):</h5>
+          <p id="t-notas-gestor"></p>
+        </div>
+
+        <button class="action-btn" style="width: 100%; background: var(--secondary);" onclick="salvarAtualizacaoTecnico()">SALVAR & ATUALIZAR STATUS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÁREA DO GESTOR -->
+  <div id="gestor-view" class="view-panel">
+    <div class="card" style="border-left-color: #333;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Painel de Controle e Gestão da Unidade</h2>
+        <span style="font-size: 0.9em; background: #e0e0e0; color: #333; padding: 5px 12px; border-radius: 12px; font-weight: bold;">Unidade: Zona Oeste - SP</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>SOLICITAÇÕES / Acompanhamento</h3>
+        <div class="os-list-item selected">
+          <div style="display: flex; justify-content: space-between;">
+            <strong>Pedido 1 - Protocolo 2026-987</strong>
+            <span class="prio-badge prio-alta">Crítico</span>
+          </div>
+          <p><small>Solicitante: Ana Maria Silva | Vazamento</small></p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Controle do Gestor</h3>
+        
+        <div style="margin-bottom: 12px;">
+          <label><strong>Alterar Status Geral:</strong></label>
+          <select id="g-status-select">
+            <option value="Pendente">Pendente</option>
+            <option value="Em Andamento">Em Andamento</option>
+            <option value="Concluido">Concluído</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label><strong>Atendente / Técnico Responsável:</strong></label>
+          <select id="g-tech-select">
+            <option value="Carlos Eduardo">Carlos Eduardo (Técnico 1)</option>
+            <option value="Roberto Santos">Roberto Santos (Técnico 2)</option>
+            <option value="Fernanda Lima">Fernanda Lima (Atendente Unidade)</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label><strong>Notas do Gestor (Diretrizes à equipe):</strong></label>
+          <textarea id="g-notas-gestor" rows="2"></textarea>
+        </div>
+
+        <button class="action-btn" style="width: 100%; background: var(--primary);" onclick="salvarGestor()">SALVAR CONFIGURAÇÕES DA OS</button>
+      </div>
+    </div>
+
+    <div class="card" style="border-left-color: #333;">
+      <h3>⚙️ CONFIGURAÇÕES AVANÇADAS & AUDITORIA</h3>
+      <div class="grid-3">
+        <button class="action-btn secondary" onclick="abrirModal('incongruencias')">Incongruências (1 Alerta)</button>
+        <button class="action-btn secondary" onclick="abrirModal('notas')">Notas / Cronologia</button>
+        <button class="action-btn secondary" onclick="abrirModal('logs')">Auditoria de Logs</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div id="modal-avancado" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Configurações Avançadas</h3>
+        <span class="close-btn" onclick="fecharModal()">&times;</span>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    const dadosIniciais = {
+      protocolo: '2026-987',
+      fornecimento: '098412-X',
+      solicitante: 'Ana Maria Silva',
+      endereco: 'Rua das Flores, 123 - Pinheiros (CEP: 05400-000)',
+      servico: 'Vazamento na Calçada / Baixa Pressão',
+      status: 'Em Andamento',
+      prioridade: 'Alta / Crítica',
+      tecnico: 'Carlos Eduardo',
+      notasTecnico: 'Equipe técnica alocada. Vistoria inicial iniciada. Encanador a caminho para reparo na rede secundária.',
+      notasGestor: 'Atendimento prioritário devido a proximidade com área escolar. Trocar manilha se necessário.'
+    };
+
+    function carregarDados() {
+      const salvo = localStorage.getItem('os_2026_987');
+      return salvo ? JSON.parse(salvo) : dadosIniciais;
+    }
+
+    function salvarDados(dados) {
+      localStorage.setItem('os_2026_987', JSON.stringify(dados));
+      sincronizarInterface();
+    }
+
+    function sincronizarInterface() {
+      const dados = carregarDados();
+
+      document.getElementById('c-proto').textContent = dados.protocolo;
+      document.getElementById('c-fornec').textContent = dados.fornecimento;
+      document.getElementById('c-nome').textContent = dados.solicitante;
+      document.getElementById('c-end').textContent = dados.endereco;
+      document.getElementById('c-servico').textContent = dados.servico;
+      document.getElementById('c-notas-tecnicas').textContent = dados.notasTecnico;
+      document.getElementById('c-tech-name').textContent = dados.tecnico;
+
+      const badge = document.getElementById('c-status-display');
+      badge.textContent = dados.status;
+      badge.className = 'status-badge ';
+      if (dados.status === 'Pendente') badge.classList.add('status-pendente');
+      else if (dados.status === 'Em Andamento') badge.classList.add('status-andamento');
+      else if (dados.status === 'Concluido') badge.classList.add('status-concluido');
+      else if (dados.status === 'Cancelado') badge.classList.add('status-cancelado');
+
+      document.getElementById('t-status-select').value = dados.status;
+      document.getElementById('t-notas-input').value = dados.notasTecnico;
+      document.getElementById('t-notas-gestor').textContent = dados.notasGestor;
+
+      document.getElementById('g-status-select').value = dados.status;
+      document.getElementById('g-tech-select').value = dados.tecnico;
+      document.getElementById('g-notas-gestor').value = dados.notasGestor;
+    }
+
+    function switchView(view) {
+      document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(`${view}-view`).classList.add('active');
+      document.getElementById(`btn-${view}`).classList.add('active');
+    }
+
+    function fazerLoginTecnico() {
+      const user = document.getElementById('tech-user').value;
+      if (user.trim() !== '') {
+        alert('Login efetuado com sucesso!');
+        switchView('tecnico');
+      } else {
+        alert('Por favor, digite seu usuário.');
+      }
+    }
+
+    function buscarProtocolo() {
+      const proto = document.getElementById('protocol-input').value.trim();
+      if (proto === '2026-987') {
+        sincronizarInterface();
+        document.getElementById('result-card').style.display = 'block';
+      } else {
+        alert('Protocolo não encontrado. Teste com: 2026-987');
+      }
+    }
+
+    function salvarAtualizacaoTecnico() {
+      const dados = carregarDados();
+      dados.status = document.getElementById('t-status-select').value;
+      dados.notasTecnico = document.getElementById('t-notas-input').value;
+
+      salvarDados(dados);
+      alert('Ordem de serviço atualizada pelo Técnico com sucesso!');
+    }
+
+    function salvarGestor() {
+      const dados = carregarDados();
+      dados.status = document.getElementById('g-status-select').value;
+      dados.tecnico = document.getElementById('g-tech-select').value;
+      dados.notasGestor = document.getElementById('g-notas-gestor').value;
+
+      salvarDados(dados);
+      alert('Configurações do Gestor salvas e sincronizadas com sucesso!');
+    }
+
+    function abrirModal(tipo) {
+      const modal = document.getElementById('modal-avancado');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+
+      if (tipo === 'incongruencias') {
+        title.textContent = 'Incongruências Identificadas';
+        body.innerHTML = '<div style="background:#fff3cd; padding:10px; border-radius:5px;">⚠️ Alerta de divergência na OS 2026-987</div>';
+      } else if (tipo === 'notas') {
+        title.textContent = 'Notas da Cronologia';
+        body.innerHTML = '<ul><li>28/08/2026 - Chamado aberto</li><li>28/08/2026 - Técnico alocado</li></ul>';
+      } else if (tipo === 'logs') {
+        title.textContent = 'Auditoria de Logs';
+        body.innerHTML = '<pre>[LOG 2026-08-28] OS_UPDATE -> Success</pre>';
+      }
+      modal.style.display = 'flex';
+    }
+
+    function fecharModal() {
+      document.getElementById('modal-avancado').style.display = 'none';
+    }
+
+    window.onload = function() {
+      sincronizarInterface();
+    };
+  </script>
+</body>
+</html>
